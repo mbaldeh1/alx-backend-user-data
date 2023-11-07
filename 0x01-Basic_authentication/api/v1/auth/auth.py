@@ -1,38 +1,40 @@
 #!/usr/bin/env python3
-"""Authentication module for the API.
 """
-import re
-from typing import List, TypeVar
+implementation of Auth class
+"""
+
 from flask import request
+from typing import TypeVar, List
+from fnmatch import fnmatch
 
 
 class Auth:
-    """Authentication class.
     """
+    Auth class template for all API authentication system
+    """
+
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """Checks if a path requires authentication.
         """
-        if path is not None and excluded_paths is not None:
-            for exclusion_path in map(lambda x: x.strip(), excluded_paths):
-                pattern = ''
-                if exclusion_path[-1] == '*':
-                    pattern = '{}.*'.format(exclusion_path[0:-1])
-                elif exclusion_path[-1] == '/':
-                    pattern = '{}/*'.format(exclusion_path[0:-1])
-                else:
-                    pattern = '{}/*'.format(exclusion_path)
-                if re.match(pattern, path):
-                    return False
+        returns True if the path is not in the list of strings excluded_paths
+        """
+        if path is None or excluded_paths is None or len(excluded_paths) == 0:
+            return True
+        slashed_path = path if path.endswith("/") else path + "/"
+        for pattern in excluded_paths:
+            if fnmatch(slashed_path, pattern):
+                return False
         return True
 
     def authorization_header(self, request=None) -> str:
-        """Gets the authorization header field from the request.
+        """
+        return the value of the header request Authorization
         """
         if request is not None:
             return request.headers.get('Authorization', None)
         return None
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """Gets the current user from the request.
+        """
+        returns None - request will be the Flask request object
         """
         return None
